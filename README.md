@@ -1,4 +1,4 @@
-# DSII-miripixels
+# MIRI-Pixel-DB
 Code repository for the MIRI DSII project "Tracing the lives of MIRI detector pixels"
 
 Created by: J. Brendan Hagan and Sarah Kendrew
@@ -21,7 +21,7 @@ To access this database from the command line, do the following:
 - command line to list all databases in postgresql:  `\list`
 
 ## Continuous Integration and Unit Test
-This respository uses Travis CI. To manually run the unit test, go to base directory and run  ```pytest -q -s``` .
+This repository uses Travis CI. To manually run the unit test, go to base directory and run  ```pytest -q -s``` .
 
 ## References/Tutorials
  - Why we chose psycopg2 as driver for postgresql: https://wiki.postgresql.org/wiki/Python and http://initd.org/psycopg/
