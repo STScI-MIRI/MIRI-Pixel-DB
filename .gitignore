@@ -1,0 +1,12 @@
+__pycache__
+
+# Mac OS
+.DS_Store
+
+# Example IPython notebook files
+.ipynb_checkpoints/
+
+.cache
+.metadata
+src
+docs

@@ -1,0 +1,17 @@
+language: python
+python:
+- '3.7'
+before_install: sudo mount -o remount,size=50% /var/ramfs # /var/ramfs disk space was filling up. needed to implement this solution: https://github.com/travis-ci/travis-ci/issues/9036
+install:
+- pip install -r requirements.txt
+before_script:
+  - df -h # display disk usage info
+  - python  miri_pixel_db_code/db_init.py
+  - export CRDS_PATH="$HOME/crds_cache" # this line and one below necessary for offsite use of JWST pipeline: https://jwst-crds.stsci.edu/docs/cmdline_bestrefs/
+  - export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"
+script:
+- pytest -q -s
+services:
+  - postgresql
+after_script:
+  - df -h

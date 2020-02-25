@@ -1,0 +1,196 @@
+Timing info generated from using the line_profiler package: https://pypi.org/project/line_profiler/
+Date: December 17, 2019
+Command run to generate this report: python  DSII-miripixels/miridb_script.py JPL data_sample_JPL/MIRI_5432_16_S_20160831-033606_SCE1.fits data_sample_JPL/JPL8_Reference_Files/ [password]
+
+Notes:
+- The two most time consuming functions are "add_raw_exposure_to_db" and "add_corrected_exposure_to_db", with the latter being the most expensive. In both cases, the vast majority of the time is spent in the "add_rows_to_table" function (> 94% of time for add_raw_exposure_to_db and > 80% for add_corrected_exposure_to_db).
+- MIRI_5432_16_S_20160831-033606_SCE1.fits has dimensions (1032, 1280, 100)
+- Run on J. Brendan Hagan's personal machine (2.9 GHz Intel Core i9  with 32 GB 2400 MHz DDR4 memory)
+
+
+Timer unit: 1e-06 s
+
+Total time: 0.26078 s
+File: /Users/hagan/Master_Folder/James_Hagan/STScI/Functional/DSMO/MIRI_database_project/DSII-miripixels/exposuresdb.py
+Function: generate_detectors_pixels_entries at line 106
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   106                                           @profile
+   107                                           def generate_detectors_pixels_entries():
+   108                                               """code to generate data to enter into 'pixels' and 'detectors tables'"""
+   109         1          5.0      5.0      0.0      numrows = 1280
+   110         1          1.0      1.0      0.0      numcols = 1032
+   111         1          1.0      1.0      0.0      num_nonref_rows = 1024
+   112         1          1.0      1.0      0.0      unique_detector_names = ['MIRIMAGE', 'MIRIFULONG', 'MIRIFUSHORT']
+   113         1          0.0      0.0      0.0      unique_detector_ids = [493, 494, 495]
+   114                                               """line to generate data to enter into 'detectors'"""
+   115         1          1.0      1.0      0.0      detectors_vals_pre = {'detector_id':unique_detector_ids, 'name':unique_detector_names, 'ncols':([numcols] * 3), 'nrows':([numrows] * 3)};
+   116         1       1394.0   1394.0      0.5      detectors_vals = pd.DataFrame(detectors_vals_pre)
+   117         1          2.0      2.0      0.0      pixIDs=range(1,numrows*numcols+1)
+   118                                               """generating the row and column numbers for each pixel id"""
+   119         1      83498.0  83498.0     32.0      rowNums = np.array([[num] * numcols for num in range(1,numrows+1)]).flatten()
+   120         1      88431.0  88431.0     33.9      colNums = np.transpose(np.array([[num] * numrows for num in range(1,numcols+1)])).flatten()
+   121                                               """identifying which pix ids are reference pixels"""
+   122         1          3.0      3.0      0.0      num_Ref_Pixels = (numrows - num_nonref_rows)*numcols
+   123         1          0.0      0.0      0.0      number_Image_pixels = numrows*numcols - num_Ref_Pixels
+   124         1      72928.0  72928.0     28.0      ref_Pixel_Boolean = (np.array([[0]*number_Image_pixels + [1]*num_Ref_Pixels])).flatten()
+   125                                               """data input to the pixels table"""
+   126         1          2.0      2.0      0.0      pixels_vals_pre = {'pixel_id':pixIDs,'row_id':rowNums,'col_id':colNums,'ref_pix':ref_Pixel_Boolean}
+   127         1      14512.0  14512.0      5.6      pixels_vals = pd.DataFrame(pixels_vals_pre)
+   128         1          1.0      1.0      0.0      return detectors_vals, pixels_vals
+
+Total time: 1760.16 s
+File: /Users/hagan/Master_Folder/James_Hagan/STScI/Functional/DSMO/MIRI_database_project/DSII-miripixels/exposuresdb.py
+Function: add_raw_exposure_to_db at line 287
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   287                                           @profile
+   288                                           def add_raw_exposure_to_db(raw_exposure_filepath, data_genesis, data_coords, ref_coords_reshape, session, connection, exposures, ramps):
+   289         1       2649.0   2649.0      0.0      raw_ramp_hdu = fits.open(raw_exposure_filepath)
+   290         1          8.0      8.0      0.0      raw_ramp_header = raw_ramp_hdu[0].header ### raw_ramp_header used by exposure_row AND ramp_rows, group_rows
+   291         1     764287.0 764287.0      0.0      ramp_data = raw_ramp_hdu[1].data
+   292         1     190172.0 190172.0      0.0      ref_pix_ramp_data = raw_ramp_hdu[2].data
+   293         1       4163.0   4163.0      0.0      raw_ramp_hdu.close()
+   294                                               """ primary key generated automatically when rows enter into exposure table"""
+   295         1         76.0     76.0      0.0      exposure_table_column_names = complement(exposures.columns.keys(),exposures.primary_key.columns.keys())
+   296                                               """ generate the exposure row and insert it into the exposures table"""
+   297         1        978.0    978.0      0.0      exposure_row, exposure_table_filename = generate_exposure_row(data_genesis, raw_ramp_header, exposure_table_column_names)
+   298         1       9990.0   9990.0      0.0      insert_exposure = exposures.insert().execute(exposure_row)
+   299                                               """ generate the indiviadual ramp and group values to be inserted into the DB"""
+   300         1    4434668.0 4434668.0      0.3      all_ramps, all_groups = get_ramps_and_groups_column_data(ramp_data)
+   301         1   27181462.0 27181462.0      1.5      all_ramps_enter = prep_ramps_for_db(all_ramps)
+   302                                               """ grab number of integrations"""
+   303         1          5.0      5.0      0.0      dim_ramp_data = ramp_data.shape
+   304         1          1.0      1.0      0.0      int_num = dim_ramp_data[0]
+   305                                               """ grab the exp_id associated with the filename exposure_table_filename -  need this exp_id to insert ramps"""
+   306         1       4194.0   4194.0      0.0      exp_id = session.query(exposures.c.exp_id).filter(exposures.c.exp == exposure_table_filename).scalar()
+   307         1          2.0      2.0      0.0      ramp_len = dim_ramp_data[1]
+   308         1          4.0      4.0      0.0      all_ints = list(range(1,int_num+1))
+   309                                               """ here we generate the int number associated with each ramp"""
+   310         1          1.0      1.0      0.0      ramp_ints_pre = []
+   311         1          1.0      1.0      0.0      num_pixels = dim_ramp_data[2] * dim_ramp_data[3]
+   312         6         15.0      2.5      0.0      for i in all_ints:
+   313         5      20272.0   4054.4      0.0          ramp_ints_pre.append([i] * num_pixels)
+   314         1      47142.0  47142.0      0.0      ramp_ints = list(itertools.chain.from_iterable(ramp_ints_pre))
+   315                                               """ grab the pixel coordinates for the given subarray - subarray info contined in raw_ramp_header"""
+   316         1      44426.0  44426.0      0.0      data_pixel_coords_final, reference_pixel_coords_final = generate_pixel_coordinates_from_header(raw_ramp_header, data_coords, ref_coords_reshape)
+   317                                               """ multiply pixel coords by int_num to get pixel_id values for all the ramps"""
+   318         1      71346.0  71346.0      0.0      all_pix_coords = list(data_pixel_coords_final) * int_num
+   319         1      15501.0  15501.0      0.0      all_exp_ids = [exp_id] * len(all_pix_coords)
+   320                                               """ create a dictionary of all the ramp data, convert to a pandas dataframe, and do fast insert with add_rows_to_table function"""
+   321         1          3.0      3.0      0.0      ramps_table_dict = {'pixel_id': all_pix_coords, 'exp_id': all_exp_ids, 'intnumber': ramp_ints, 'ramp':all_ramps_enter}
+   322         1    3120502.0 3120502.0      0.2      df_ramps = pd.DataFrame(ramps_table_dict)
+   323         1  141745869.0 141745869.0      8.1      add_rows_to_table(df_ramps, 'ramps', connection)
+   324                                               """ query for all the ramp_ids associated with a gievn exp_id. ramp_ids are retuened in the order in which they were inserted for that exp_id"""
+   325         1        288.0    288.0      0.0      ramp_id_query = session.query(ramps.c.ramp_id).filter(ramps.c.exp_id == exp_id)
+   326                                               """ create the ramps_id values to insert into the groups table"""
+   327         1   27143002.0 27143002.0      1.5      ramp_id_query_vals = [([num[0]] * ramp_len) for num in ramp_id_query]
+   328         1    1096231.0 1096231.0      0.1      group_ramp_ids = list(itertools.chain.from_iterable(ramp_id_query_vals))
+   329                                               """ create the group_number values to insert into the groups table"""
+   330         1    1592524.0 1592524.0      0.1      all_group_nums = list(itertools.chain.from_iterable([list(range(1,ramp_len+1))] * ramp_id_query.count()))
+   331                                               """ create a dictionary of all the group data, convert to a pandas dataframe, and do fast insert with add_rows_to_table function"""
+   332         1          3.0      3.0      0.0      groups_table_dict = {'ramp_id': group_ramp_ids, 'group_number': all_group_nums,'raw_value':all_groups}
+   333         1   31770884.0 31770884.0      1.8      df_groups = pd.DataFrame(groups_table_dict)
+   334         1 1520902411.0 1520902411.0     86.4      add_rows_to_table(df_groups, 'groups', connection)
+
+Total time: 11837.9 s
+File: /Users/hagan/Master_Folder/James_Hagan/STScI/Functional/DSMO/MIRI_database_project/DSII-miripixels/exposuresdb.py
+Function: add_corrected_exposure_to_db at line 339
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   339                                           @profile
+   340                                           def add_corrected_exposure_to_db(corrected_ramp_fn, session, connection, exposures, groups, ramps, correctedexposures, correctedramps):
+   341                                               """ Read in data from FITS file"""
+   342         1      14803.0  14803.0      0.0      corrected_ramp_hdu = fits.open(corrected_ramp_fn)
+   343         1         14.0     14.0      0.0      corrected_header = corrected_ramp_hdu[0].header
+   344         1      45539.0  45539.0      0.0      corrected_ramp_data = corrected_ramp_hdu[1].data
+   345         1       6024.0   6024.0      0.0      pix_group_dq_data = corrected_ramp_hdu[3].data
+   346         1       3043.0   3043.0      0.0      pix_err_data = corrected_ramp_hdu[4].data
+   347         1        847.0    847.0      0.0      corrected_ramp_hdu.close()
+   348                                               """ grab the raw exposure filename - jwst pipeline inserts '_ramp' at the end of the filename"""
+   349         1         54.0     54.0      0.0      exposure_table_filename = os.path.basename(corrected_ramp_fn).replace('_ramp.fits','.fits')
+   350                                               """ grab exp_id associated with the exposure_table_filename, grab ramp_ids associated with that exp_id"""
+   351         1      14974.0  14974.0      0.0      exp_id = session.query(exposures.c.exp_id).filter(exposures.c.exp == exposure_table_filename).scalar()
+   352         1        308.0    308.0      0.0      ramp_ids_pre = session.query(ramps.c.ramp_id).filter(ramps.c.exp_id == exp_id)
+   353         1   19718425.0 19718425.0      0.2      ramp_ids = [r[0] for r in ramp_ids_pre]
+   354                                               """ generate the corrected exposure row for insert into the Corrected Exposures table"""
+   355         1         39.0     39.0      0.0      corrected_exposure_table_column_names = complement(correctedexposures.columns.keys(),correctedexposures.primary_key.columns.keys())
+   356         1       2342.0   2342.0      0.0      corrected_exposure_row = generate_corrected_exposure_row(corrected_header,corrected_exposure_table_column_names,exp_id)
+   357         1      72642.0  72642.0      0.0      insert_obj = correctedexposures.insert().execute(corrected_exposure_row)
+   358                                               """ lines below transform data so that each element in the list is the ramp for a given pixel"""
+   359         1    5213600.0 5213600.0      0.0      all_corrected_ramps, all_corrected_groups = get_ramps_and_groups_column_data(corrected_ramp_data)
+   360         1    4379646.0 4379646.0      0.0      all_dq_ramps, all_dq_groups = get_ramps_and_groups_column_data(pix_group_dq_data)
+   361         1    4723431.0 4723431.0      0.0      all_err_ramps, all_err_groups = get_ramps_and_groups_column_data(pix_err_data)
+   362         1   75221813.0 75221813.0      0.6      all_corrected_ramps_enter = prep_ramps_for_db(all_corrected_ramps)
+   363         1   18955323.0 18955323.0      0.2      all_dq_ramps_enter = prep_ramps_for_db(all_dq_ramps)
+   364         1   31093351.0 31093351.0      0.3      all_err_ramps_enter = prep_ramps_for_db(all_err_ramps)
+   365                                               """ code to extract slope data to be inserted into the correctedpixelramps table. If the exposure has >1 integration, *_rateints.fits file is created, which is where
+   366                                                   we pull the slope values for each integration. If exposure is only 1 integration, then the JWST pipeline does not create *_rateints.fits
+   367                                                   file, and we get the slope value for the single intgeration from the *_rate.fits file."""
+   368         1          5.0      5.0      0.0      exposure_table_nints = len(corrected_ramp_data)
+   369         1          2.0      2.0      0.0      if exposure_table_nints == 1:
+   370                                                   slope_file = corrected_ramp_fn.replace("_ramp.fits","_rate.fits")
+   371                                               else:
+   372         1          6.0      6.0      0.0          slope_file = corrected_ramp_fn.replace("_ramp.fits","_rateints.fits")
+   373         1       4780.0   4780.0      0.0      slope_hdu = fits.open(slope_file)
+   374         1      85485.0  85485.0      0.0      slope_data = slope_hdu[1].data
+   375                                               """ .byteswap().newbyteorder() needed in line below to avoid the ValueError described here: https://github.com/astropy/astropy/issues/1156"""
+   376         1      29951.0  29951.0      0.0      slope_data_per_pixel = slope_data.flatten().byteswap().newbyteorder()
+   377         1        102.0    102.0      0.0      slope_hdu.close()
+   378         1          3.0      3.0      0.0      dims_ramps = all_dq_ramps.shape
+   379                                               """ query for the corrected_exp_id based on the corrected exposure filename"""
+   380         1       3149.0   3149.0      0.0      corrected_exp_id = session.query(correctedexposures.c.corrected_exp_id).filter(correctedexposures.c.corrected_exp == corrected_header['FILENAME']).scalar()
+   381                                               """ create a constant array of corrected_exp_ids to insert into the ramps table"""
+   382         1       6900.0   6900.0      0.0      corrected_exp_ids = [corrected_exp_id] * dims_ramps[0]
+   383                                               """ Defining all possible DQ vals - the three lines below could be moved outside of this function, however they are very fast to execute"""
+   384         1         21.0     21.0      0.0      possible_dq_vals = [2**k for k in range(0,31)]
+   385         1         18.0     18.0      0.0      dq_value_pose_dict = dict(zip(possible_dq_vals, range(0,len(possible_dq_vals))))
+   386         1          2.0      2.0      0.0      num_dqs = len(possible_dq_vals)
+   387                                               """ This block of code interprets the values found in the dq_ramps and produces a boolean for each DQ flag for each ramp
+   388                                                   (True if ramp array contains DQ flag, False otherwise) and a boolean for each DQ flags for each group (True if group DQ int value contains DQ flag, False otherwise)"""
+   389         1          3.0      3.0      0.0      number_of_ramps = len(all_dq_ramps)
+   390         1          2.0      2.0      0.0      ramp_len = dims_ramps[1]
+   391         1        130.0    130.0      0.0      dq_matrices = np.empty((number_of_ramps, len(possible_dq_vals), ramp_len),dtype=int)
+   392         1          9.0      9.0      0.0      ramp_dq_vectors = np.empty((number_of_ramps,len(possible_dq_vals)),dtype=bool)
+   393   5283841    7528490.0      1.4      0.1      for i in range(0,number_of_ramps):
+   394   5283840  506535766.0     95.9      4.3          new_dq_ramp = np.array([return_dq_flags(flag, possible_dq_vals, dq_value_pose_dict, num_dqs) for flag in all_dq_ramps[i]])
+   395   5283840   28096778.0      5.3      0.2          dq_matrix = np.transpose(new_dq_ramp)
+   396   5283840  504922099.0     95.6      4.3          ramp_dq = [1 in row for row in dq_matrix]
+   397   5283840   39900542.0      7.6      0.3          dq_matrices[i] = dq_matrix
+   398   5283840   21083115.0      4.0      0.2          ramp_dq_vectors[i] = ramp_dq
+   399         1   65767462.0 65767462.0      0.6      group_dq_flags = np.concatenate((dq_matrices), axis=1)
+   400         1       2833.0   2833.0      0.0      tf_vals_each_flag = np.transpose(ramp_dq_vectors)
+   401         1         57.0     57.0      0.0      dq_names = dq_val_ref.values()
+   402         1        691.0    691.0      0.0      dq_group_val_dict = dict(zip(dq_names,group_dq_flags))
+   403         1         43.0     43.0      0.0      dq_ramp_val_dict = dict(zip(dq_names,tf_vals_each_flag))
+   404                                               """ create first part of corrected ramps dictionary, without the DQ_Flag information"""
+   405         1         13.0     13.0      0.0      corrected_ramps_table_dict = {'ramp_id': ramp_ids, 'corrected_exp_id': corrected_exp_ids, 'slope_value': slope_data_per_pixel, 'corrected_ramp': all_corrected_ramps_enter,
+   406         1          7.0      7.0      0.0               'dq_ramp': all_dq_ramps_enter, 'err_ramp': all_err_ramps_enter}
+   407                                               """ update the corrected ramps dictionary with the DQ_Flag information, and then generate a pandas dataframe from this dictionary,
+   408                                                   and finally do a fast insert with add_rows_to_table function"""
+   409         1         32.0     32.0      0.0      corrected_ramps_table_dict.update(dq_ramp_val_dict)
+   410         1   16574109.0 16574109.0      0.1      df_corrected_ramps = pd.DataFrame(corrected_ramps_table_dict)
+   411         1  428141761.0 428141761.0      3.6      add_rows_to_table(df_corrected_ramps, 'correctedramps', connection)
+   412                                               """"query for all the group_ids associated with the exp_id, and create the foreign group_ids to insert into the CorrectedGroups table"""
+   413         1      46251.0  46251.0      0.0      group_ids_pre = session.query(groups.c.group_id).join(ramps).filter(ramps.c.exp_id == exp_id)
+   414                                               """ the postgresql query returns a list of tuples, all containing 1 element - to get a flat list, we need to perform this next line"""
+   415         1  754220602.0 754220602.0      6.4      group_ids = [g[0] for g in group_ids_pre] # possible optimization https://dba.stackexchange.com/questions/2973/how-to-insert-values-into-a-table-from-a-select-query-in-postgresql
+   416                                               """ query the corrrected ramps table to return all the corrected ramps ids associated with the corrected_exp_id,
+   417                                                   and make corrected_ramp_id foreign key for each corrected group entry"""
+   418         1      33982.0  33982.0      0.0      corrected_ramp_ids_pre = session.query(correctedramps.c.corr_ramp_id).filter(correctedramps.c.corrected_exp_id == corrected_exp_id)
+   419         1   24967859.0 24967859.0      0.2      corrected_ramp_ids = [([num[0]] * ramp_len) for num in corrected_ramp_ids_pre]
+   420         1    1251709.0 1251709.0      0.0      corrected_group_ramp_ids = list(itertools.chain.from_iterable(corrected_ramp_ids))
+   421                                               """ create the group numbers to be inserted into the CorrectedGroups table for the 'group_number' column"""
+   422         1    2451606.0 2451606.0      0.0      all_group_nums = list(itertools.chain.from_iterable([list(range(1,ramp_len+1))] * corrected_ramp_ids_pre.count()))
+   423                                               """ create first part of corrected groups dictionary, without the DQ_Flag information"""
+   424         1          3.0      3.0      0.0      corrected_groups_table_dict = {'group_id': group_ids,
+   425         1          2.0      2.0      0.0                                           'corr_ramp_id':corrected_group_ramp_ids, 'group_number': all_group_nums,
+   426         1          3.0      3.0      0.0                                           'corrected_value':all_corrected_groups, 'dq_value':all_dq_groups,'error_value':all_err_groups}
+   427                                               """ update the corrected groups dictionary with the DQ_Flag information, and then generate a pandas dataframe from this dictionary,
+   428                                                   and finally do a fast insert with add_rows_to_table function"""
+   429         1         47.0     47.0      0.0      corrected_groups_table_dict.update(dq_group_val_dict)
+   430         1  167923066.0 167923066.0      1.4      df_corrected_groups = pd.DataFrame(corrected_groups_table_dict)
+   431         1 9108899593.0 9108899593.0     76.9      add_rows_to_table(df_corrected_groups, 'correctedgroups', connection)
