@@ -29,7 +29,8 @@ This repository uses Travis CI. To manually run the unit test, go to base direct
  - Tutorial using sqlalchemy and postgresql: https://docs.sqlalchemy.org/en/13/dialects/postgresql.html
 
 ## Insights to Data Volume and Computation Time with FULL MIRI exposure
-Adding a single FULL exposure to DB:
+Detailed timing / code profiling in `code_profile_info.txt` file in this repository.
+Test: adding a single FULL exposure to DB:
 - Raw data exposure is FULL array, 5 integrations with 20 groups each - raw data has dimensions (5, 20, 1024, 1032)
 - We add data to the MIRI Pixel DB from the following files:
     -  The uncalibrated FITS file (264.2 MB) 
@@ -46,7 +47,7 @@ Adding a single FULL exposure to DB:
     - 'ramps': '1087 MB',
     - 'groups': '8991 MB',
     - 'correctedgroups': '14 GB'
-- On my personal machine (2.9 GHz Intel Core i9  with 32 GB 2400 MHz DDR4 memory), it took ~ 29 minutes to add raw exposure data to DB and approximately 197 minutes to add corrected exposure data to DB (~3.3 hours total, excluding any JWST pipeline operations). See more timing details in `code_profile_info.txt` file in this repository.
+- On my personal machine (2.9 GHz Intel Core i9  with 32 GB 2400 MHz DDR4 memory), it took ~ 29 minutes to add raw exposure data to DB and approximately 197 minutes to add corrected exposure data to DB (~3.3 hours total, excluding any JWST pipeline operations). 
 
 ## Data Selection
 MIRI Pixel DB demonstration will be on JPL8 data taken on the FPM-101 detector. We have selected 332 uncalibrated, raw exposures (FITS), totaling 166.9 GB from the JPL8 test campaign. This data comes from the following JPL8 tests:
