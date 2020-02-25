@@ -7,17 +7,10 @@ Created on Mon Sep 17 10:28:20 2019
 
 The methods in this package are used to define/create the tables in the MIRI Pixel DB. Other methods are provided to interact with / perform operations on the DB.
 """
-from sqlalchemy import create_engine, Table, Column, String, MetaData, Boolean, Float, ForeignKey, Integer, DateTime, UniqueConstraint, Index
+from sqlalchemy import create_engine, Column, String, Boolean, Float, ForeignKey, Integer, DateTime, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy import exc
-from sqlalchemy import inspect
-
-from operator import itemgetter
-
-import psycopg2
-import sys
 import numpy as np
 
 
