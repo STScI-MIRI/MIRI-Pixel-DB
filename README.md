@@ -30,6 +30,7 @@ This repository uses Travis CI. To manually run the unit test, go to base direct
 
 ## Insights to Data Volume and Computation Time with FULL MIRI exposure
 Detailed timing / code profiling in `code_profile_info.txt` file in this repository.
+
 Test: adding a single FULL exposure to DB:
 - Raw data exposure is FULL array, 5 integrations with 20 groups each - raw data has dimensions (5, 20, 1024, 1032)
 - We add data to the MIRI Pixel DB from the following files:
