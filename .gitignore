@@ -10,3 +10,4 @@ __pycache__
 .metadata
 src
 docs
+.idea
