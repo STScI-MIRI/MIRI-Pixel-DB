@@ -22,14 +22,10 @@ def chunks(l, n):
 ### This function splits the reference pixels at the top of an image and creates a REFOUT extension to store them
 def split_data_and_refout(hdulist):
     hdr = hdulist[0].header
-    COLSTART = hdr['COLSTART']
     ROWSTART = hdr['ROWSTART']
-    COLSTOP = COLSTART + hdr['NAXIS1']*0.25 - 1
     ROWSTOP = ROWSTART + hdr['NAXIS2']*0.8 - 1
-    ncols = COLSTOP - COLSTART + 1
     nrows = ROWSTOP - ROWSTART + 1
     # make sure they're integers with a nearest integer calculation
-    ncols = int(ncols + 0.5)
     nrows = int(nrows + 0.5)
     fulldata = hdulist[0].data
     detectordata = fulldata[:, :nrows]

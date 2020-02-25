@@ -48,7 +48,6 @@ def add_rows_to_table(df, table_name, connection):
     output = StringIO()
     df.to_csv(output, sep='\t',header=False,index=False)
     output.seek(0)
-    contents = output.getvalue()
     cursor = connection.cursor()
     columns_mine = tuple(df.columns)
     cursor.copy_from(output, table_name, null="", columns = columns_mine)
@@ -172,10 +171,8 @@ def get_pixel_coordinates_for_subarray(data_coords, ref_coords_reshape, first_pi
 def generate_structured_coordinates():
     numrows = 1280
     numcols = 1032
-    num_detectors = 3
     pixIDs=range(1,numrows*numcols+1)
     all_partitioned_coords = np.array(list(chunks(pixIDs,1032)))
-    ncols = 258 # number ref columns in full frame image after they have put placed in every 5th column
     nrows = 1024
     data_coords = all_partitioned_coords[:nrows]
     ref_coords = all_partitioned_coords[nrows:]
@@ -267,7 +264,6 @@ def generate_exposure_row(data_genesis,raw_ramp_header,exposure_table_column_nam
 def generate_corrected_exposure_row(corrected_header,corrected_exposure_table_column_names, exp_id):
     """gathering values for the row to add to the correctedexposures table"""
     corrected_exp = corrected_header['FILENAME']
-    exposure_table_nints = corrected_header['NINTS']
     pipeline_step_keywords = ['S_DARK','S_DQINIT', 'S_FRSTFR', 'S_GRPSCL', 'S_IPC', 'S_JUMP', 'S_LASTFR', 'S_LINEAR', 'S_REFPIX', 'S_RSCD', 'S_SATURA']
     pipeline_ref_file_keywords = ['R_DARK', 'R_GAIN', 'R_IPC', 'R_LINEAR', 'R_MASK', 'R_READNO', 'R_RSCD', 'R_SATURA']
     ref_files = []
@@ -298,13 +294,12 @@ def add_raw_exposure_to_db(raw_exposure_filepath, data_genesis, data_coords, ref
     raw_ramp_hdu = fits.open(raw_exposure_filepath)
     raw_ramp_header = raw_ramp_hdu[0].header ### raw_ramp_header used by exposure_row AND ramp_rows, group_rows
     ramp_data = raw_ramp_hdu[1].data
-    ref_pix_ramp_data = raw_ramp_hdu[2].data
     raw_ramp_hdu.close()
     """ primary key generated automatically when rows enter into exposure table"""
     exposure_table_column_names = complement(exposures.columns.keys(),exposures.primary_key.columns.keys())
     """ generate the exposure row and insert it into the exposures table"""
     exposure_row, exposure_table_filename = generate_exposure_row(data_genesis, raw_ramp_header, exposure_table_column_names)
-    insert_exposure = exposures.insert().execute(exposure_row)
+    exposures.insert().execute(exposure_row)
     """ generate the indiviadual ramp and group values to be inserted into the DB"""
     all_ramps, all_groups = get_ramps_and_groups_column_data(ramp_data)
     all_ramps_enter = prep_ramps_for_db(all_ramps)
@@ -363,7 +358,7 @@ def add_corrected_exposure_to_db(corrected_ramp_fn, session, connection, exposur
     """ generate the corrected exposure row for insert into the Corrected Exposures table"""
     corrected_exposure_table_column_names = complement(correctedexposures.columns.keys(),correctedexposures.primary_key.columns.keys())
     corrected_exposure_row = generate_corrected_exposure_row(corrected_header,corrected_exposure_table_column_names,exp_id)
-    insert_obj = correctedexposures.insert().execute(corrected_exposure_row)
+    correctedexposures.insert().execute(corrected_exposure_row)
     """ lines below transform data so that each element in the list is the ramp for a given pixel"""
     all_corrected_ramps, all_corrected_groups = get_ramps_and_groups_column_data(corrected_ramp_data)
     all_dq_ramps, all_dq_groups = get_ramps_and_groups_column_data(pix_group_dq_data)

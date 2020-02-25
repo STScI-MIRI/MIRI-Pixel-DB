@@ -3,7 +3,6 @@ import sys
 sys.path.append("..")
 from miridb import init_db, load_engine
 import time
-from astropy.io import fits
 import glob, os
 
 def test_db_unit():
