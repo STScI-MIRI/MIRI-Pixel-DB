@@ -5,6 +5,8 @@ Created by: J. Brendan Hagan and Sarah Kendrew
 
 Welcome to the code respository for the MIRI Pixel Database! This work uses the postgresql database technology, and it uses the sqlalchemy python package to interface with postgresql. 
 
+One of the principal challenges of operating the Mid-Infrared Instrument (MIRI) onboard the James Webb Space Telescope (JWST) will lie in creating accurate calibrations of the non-ideal and complex behaviours of the MIRI detectors. In preparation for this challenge, we have constructed a database to house MIRI calibration data, allowing analysts to query individual pixels on the MIRI detectors, and corresponding pixel ramps, for every image taken for MIRI calibration exposures. Such a database will allow the MIRI instrument team to work more effectively in characterizing detector effects that we have neither fully understood yet nor found robust solutions for correction. Additionally, this database would allow future development of new data-driven/machine learning-based calibration strategies. By utilizing the latest in cloud computing and database technologies, our database will provide instrument analysts with quick and easy access to calibration data. Currently in a prototyping stage, the MIRI Pixel Database can become a powerful tool for observing trends and monitoring our detectors’ health, with the potential to minimize the time required for dedicated calibration observations. 
+
 ## Database Architecture
 A UML diagram of the MIRI Pixel DB can be found in this repository - see `miri_pixel_db_uml.png`. This diagram was generated with code found in the `MIRI_pixel_BD.ipynb` under the "Generate UML Diagram for MIRI Pixel DB" section.
 
