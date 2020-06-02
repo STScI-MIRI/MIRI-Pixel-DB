@@ -15,10 +15,10 @@ import numpy as np
 
 
 """Method to delete a table from the DB"""
-def delete_table(table_name_to_be_deleted, password, base):
+def delete_table(table_name_to_be_deleted, base):
     try:
         table_to_delete = base.metadata.tables.get(table_name_to_be_deleted)
-        engine = load_engine(password)
+        engine = load_engine()
         base = declarative_base(engine)
         table_to_delete.drop(checkfirst=True)
         base.metadata.reflect(bind = engine)
@@ -66,7 +66,6 @@ def get_size_of_table(engine, table_name):
 def load_engine():
     user = 'postgres'
     db_name = 'miri_pixel_db'
-    #connection_string = 'postgresql+psycopg2://' + user + ':' + password + '@localhost:5433/' + db_name
     connection_string = 'postgresql+psycopg2://' + user + '@localhost/' + db_name
     return create_engine(connection_string, echo=False, pool_timeout=100000)
 
@@ -98,7 +97,7 @@ def load_miri_tables(base):
         """ORM for the detectors table"""
         __tablename__ = 'detectors'
         __table_args__ = {'extend_existing': True}
-        detector_id = Column(Integer(), primary_key=True,nullable=False)
+        detector_id = Column(Integer(), primary_key=True, nullable=False)
         name = Column(String(255))
         ncols = Column(Integer())
         nrows = Column(Integer())
@@ -179,7 +178,7 @@ def load_miri_tables(base):
         """ORM for the Groups table"""
         __tablename__ = 'groups'
         __table_args__ = {'extend_existing': True}
-        group_id = Column(Integer(), primary_key=True, autoincrement=True)   #new
+        group_id = Column(Integer(), primary_key=True, autoincrement=True, nullable=False)   #new
         ramp_id = Column(Integer(),ForeignKey('ramps.ramp_id',ondelete="cascade"), index = True)
         group_number = Column(Integer())
         raw_value = Column(Integer())

@@ -34,7 +34,7 @@ def test_db_unit():
 
     test_query = session.query(table_dir['ramps']).filter(table_dir['ramps'].c.exp_id == expid)
     first_test_query = test_query.first()
-    first_ramp_id = first_test_query[0]
+    #first_ramp_id = first_test_query[0]
     first_pix_id = first_test_query[1]
     num_ramps_with_pix_id_for_test_exp = session.query(table_dir['ramps'].c.exp_id).filter(table_dir['ramps'].c.exp_id == expid, table_dir['ramps'].c.pixel_id == first_pix_id).count()
     num_corr_ramps_with_pix_id_for_test_exp = session.query(table_dir['correctedramps'].c.corrected_exp_id).join(table_dir['ramps']).filter(table_dir['ramps'].c.pixel_id == first_pix_id).count()
