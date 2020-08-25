@@ -7,7 +7,10 @@ import glob, os
 
 def test_db_unit():
 
-    engine = load_engine()
+    user = 'postgres'
+    db_name = 'miri_pixel_db'
+    connection_string = 'postgresql+psycopg2://' + user + '@localhost/' + db_name
+    engine = load_engine(connection_string)
     session, base, connection, cursor = init_db(engine)
     test_exp = 'MIRI_5582_89_S_20180308-010230_SCE1_pipe.fits'
 
@@ -18,7 +21,7 @@ def test_db_unit():
     num = session.query(table_dir['exposures'].c.exp_id).filter(table_dir['exposures'].c.exp == test_exp).count()
     assert num == 0
 
-    command_string = 'python  miri_pixel_db_code/miridb_script.py test miri_pixel_db_code/tests/exposures/'+orig_exp+' None'
+    command_string = 'python  miri_pixel_db_code/miridb_script.py test miri_pixel_db_code/tests/exposures/'+orig_exp+' None '+ connection_string
     start = time.time()
     os.system(command_string)
     print('\nFinished Adding Exp to DB: ' + str(time.time() - start))

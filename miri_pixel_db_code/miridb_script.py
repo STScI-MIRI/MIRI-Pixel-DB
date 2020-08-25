@@ -74,10 +74,11 @@ if __name__ == '__main__':
     data_origin = sys.argv[1].lower()
     full_data_path = sys.argv[2]
     reference_directory = sys.argv[3]
+    connection_string = sys.argv[4]
 
     data_directory = os.path.dirname(full_data_path)
 
-    engine = load_engine()
+    engine = load_engine(connection_string)
     session, base, connection, cursor = init_db(engine)
     load_miri_tables(base)
 
