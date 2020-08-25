@@ -15,10 +15,10 @@ import numpy as np
 
 
 """Method to delete a table from the DB"""
-def delete_table(table_name_to_be_deleted, base):
+def delete_table(table_name_to_be_deleted, base, connection_string):
     try:
         table_to_delete = base.metadata.tables.get(table_name_to_be_deleted)
-        engine = load_engine()
+        engine = load_engine(connection_string)
         base = declarative_base(engine)
         table_to_delete.drop(checkfirst=True)
         base.metadata.reflect(bind = engine)
@@ -63,10 +63,7 @@ def get_size_of_table(engine, table_name):
     res = enter_psql_command(engine, psql_string)
     return res[0][0]
 
-def load_engine():
-    user = 'postgres'
-    db_name = 'miri_pixel_db'
-    connection_string = 'postgresql+psycopg2://' + user + '@localhost/' + db_name
+def load_engine(connection_string):
     return create_engine(connection_string, echo=False, pool_timeout=100000)
 
 
