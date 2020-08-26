@@ -11,7 +11,11 @@ from miridb import init_db, load_miri_tables, load_engine
 import os
 
 os.system('psql -c \'create database miri_pixel_db;\' -U postgres')  # create miri_pixel_db
-engine = load_engine()
+
+user = 'postgres'
+db_name = 'miri_pixel_db'
+connection_string = 'postgresql+psycopg2://' + user + '@localhost/' + db_name
+engine = load_engine(connection_string)
 session, base, connection, cursor = init_db(engine)
 load_miri_tables(base)
 base.metadata.create_all()
