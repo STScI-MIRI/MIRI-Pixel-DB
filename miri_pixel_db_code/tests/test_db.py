@@ -17,7 +17,6 @@ def test_db_unit():
     orig_exp = test_exp.replace('_pipe','')
     table_names = engine.table_names()
     table_dir = {table_name : Table(table_name,  base.metadata, autoload=True, autoload_with=engine) for table_name in table_names}
-
     num = session.query(table_dir['exposures'].c.exp_id).filter(table_dir['exposures'].c.exp == test_exp).count()
     assert num == 0
 
