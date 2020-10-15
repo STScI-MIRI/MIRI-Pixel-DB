@@ -74,7 +74,7 @@ def test_db_unit():
     assert groupsQ.count() == 0
     assert correctedgroupsQ.count() == 0
 
-    test_folder = 'miri_pixel_db_code/tests/exposures/'
+    test_folder = 'exposures/'
     generated_files = glob.glob(test_folder + '*_pipe*.fits')
     assert len(generated_files) >= 3
     [os.remove(file) for file in generated_files]
