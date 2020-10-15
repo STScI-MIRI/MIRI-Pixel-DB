@@ -20,7 +20,7 @@ def test_db_unit():
     num = session.query(table_dir['exposures'].c.exp_id).filter(table_dir['exposures'].c.exp == test_exp).count()
     assert num == 0
 
-    command_string = 'python  miri_pixel_db_code/miridb_script.py test miri_pixel_db_code/tests/exposures/'+orig_exp+' None '+ connection_string
+    command_string = 'python  miri_pixel_db_code/miridb_script.py test exposures/'+orig_exp+' None '+ connection_string
     start = time.time()
     os.system(command_string)
     print('\nFinished Adding Exp to DB: ' + str(time.time() - start))
