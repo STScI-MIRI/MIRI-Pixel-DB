@@ -35,8 +35,10 @@ def run_jwst_pipeline_jpl8(raw_exposure_filepath, reference_directory, pipeline_
     Look into supplying .pmap file?"""
 def add_raw_and_corrected_exposure_to_db(data_genesis, data_origin, full_data_path, data_coords, ref_coords_reshape, session, connection, exposures, ramps, groups, correctedexposures, correctedramps, reference_directory, data_directory):
     """ Create pipeline ready file for LVL1 exposure """
-    create_pipeline_ready_file(full_data_path, data_genesis)
-    raw_exposure_filepath = full_data_path.replace(".fits","_pipe.fits")
+    create_pipeline_ready_file(full_data_path, data_genesis, data_directory)
+    raw_exposure_filepath_pre = data_directory + os.path.basename(full_data_path)
+    raw_exposure_filepath = raw_exposure_filepath_pre.replace(".fits","_pipe.fits")
+    ### full_data_path.replace(".fits","_pipe.fits")
     """ Add raw exposure to DB"""
     print('Start adding raw exposure to DB')
     start = time.process_time()
@@ -62,7 +64,7 @@ def add_raw_and_corrected_exposure_to_db(data_genesis, data_origin, full_data_pa
 
 
 """ To run this script from the command line, do:
-    $ python  miridb_script_file_location data_origin full_data_path reference_directory
+    $ python  miridb_script_file_location data_origin full_data_path reference_directory connection_string
     where:
     miridb_script_file_location = miridb_script.py (or filepath to miridb_script.py)
     data_origin = JPL8, JPL9, OTIS, Flight etc. Right now only JPL8 supported.

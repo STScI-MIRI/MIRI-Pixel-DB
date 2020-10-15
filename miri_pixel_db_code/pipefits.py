@@ -42,9 +42,9 @@ def split_data_and_refout(hdulist):
     new_hdu_list = fits.HDUList(hdus = [primaryhdu,scihdu,refhdu])
     return new_hdu_list
 
-def Generate_JPL_Pipeline_Ready_File(file_path):
+def Generate_JPL_Pipeline_Ready_File(file_path, output_dir):
     jpl_hdu = fits.open(file_path)
-    data_dir = os.path.dirname(file_path) + '/'
+    #data_dir = os.path.dirname(file_path) + '/'
     ### expected NAXIS1, NAXIS2 keywords for subarray data (dimensions include reference pixels)
     subarray_keywords = [[[1032, 1280], 'FULL'],
                          [[288, 280], 'MASK1065'],
@@ -92,9 +92,12 @@ def Generate_JPL_Pipeline_Ready_File(file_path):
     hdr['SUBSTRT1'] = (hdr['COLSTART']*4 - 3) ### int((COLSTART - 1)*0.8 + 1) <-- SUBSTRT1 formula using JPL 'COLSTART' as is.
     hdr['SUBSIZE1'] = NAXIS1
     hdr['SUBSIZE2'] = NAXIS2 - NREFIMG
-    pipeline_ready_file = hdr['FILENAME'].replace(".fits","_pipe.fits")
+    hdr_filename = os.path.basename(file_path)
+    pipeline_ready_file = hdr_filename.replace(".fits", "_pipe.fits")
+    #pipeline_ready_file = hdr['FILENAME'].replace(".fits","_pipe.fits")
     hdr['FILENAME'] = pipeline_ready_file
-    output_path = data_dir + pipeline_ready_file
+    output_path = output_dir + pipeline_ready_file
+    #data_dir + pipeline_ready_file
     hdu_object_list.writeto(output_path)
     hdu_object_list.close()
 
@@ -143,11 +146,11 @@ def grab_subname(first_pix,size):
     subarray_name = list(pixel_info_dict.keys())[list(pixel_info_dict.values()).index(sub_info)]
     return subarray_name
 
-def create_pipeline_ready_file(full_data_path, data_genesis):
+def create_pipeline_ready_file(full_data_path, data_genesis, output_dir):
     ### generate a pipeline ready file
     try:
         if data_genesis == 'JPL':
-            Generate_JPL_Pipeline_Ready_File(full_data_path)
+            Generate_JPL_Pipeline_Ready_File(full_data_path,output_dir)
         elif data_genesis == 'OTIS':
             Generate_OTIS_Pipeline_Ready_File(full_data_path)
         else:
@@ -163,7 +166,7 @@ def generate_corrected_ramp(pipeline_ready_file, dark_override = None, linearity
     mypipeline.save_calibrated_ramp = True
     mypipeline.save_results = True
     if dark_override:
-        mypipeline.dark_current.override_dark = dark_ref_override
+        mypipeline.dark_current.override_dark = dark_override #dark_ref_override
     if linearity_override:
         mypipeline.linearity.override_linearity = linearity_override
     if saturation_override:
