@@ -79,7 +79,7 @@ if __name__ == '__main__':
     reference_directory = sys.argv[3]
     connection_string = sys.argv[4]
 
-    data_directory = os.path.dirname(full_data_path)
+    data_directory = os.path.dirname(full_data_path) + '/'
 
     engine = load_engine(connection_string)
     session, base, connection, cursor = init_db(engine)
