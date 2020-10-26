@@ -33,13 +33,11 @@ def run_jwst_pipeline_jpl8(raw_exposure_filepath, reference_directory, pipeline_
     This method is specific to JPL8 data because of the specific JPL8 reference file overrides provided, and we currently skip the dark correction for JPL8..
     Future development: This could be handled more intelligently by just supplying a config file that specify reference file overrides - in doing so we could generalize this method and use it for all LVL1 FITS exposure data.
     Look into supplying .pmap file?"""
-def add_raw_and_corrected_exposure_to_db(data_genesis, data_origin, full_data_path, data_coords, ref_coords_reshape, session, connection, exposures, ramps, groups, correctedexposures, correctedramps, reference_directory, data_directory):
+def add_raw_and_corrected_exposure_to_db(data_genesis, data_origin, full_data_path, data_coords, ref_coords_reshape, session, connection, exposures, ramps, groups, correctedexposures, correctedramps, reference_directory):
     """ Create pipeline ready file for LVL1 exposure """
+    data_directory = os.path.dirname(full_data_path) + '/'
     create_pipeline_ready_file(full_data_path, data_genesis, data_directory)
-    #raw_exposure_filepath_pre = data_directory + '/' + os.path.basename(full_data_path)
-    raw_exposure_filepath_pre = 'exposures/' + os.path.basename(full_data_path)
-    raw_exposure_filepath = raw_exposure_filepath_pre.replace(".fits","_pipe.fits")
-    ### full_data_path.replace(".fits","_pipe.fits")
+    raw_exposure_filepath = full_data_path.replace(".fits","_pipe.fits")
     """ Add raw exposure to DB"""
     print('Start adding raw exposure to DB')
     start = time.process_time()
@@ -64,6 +62,7 @@ def add_raw_and_corrected_exposure_to_db(data_genesis, data_origin, full_data_pa
     print('Finished adding corrected exposure to DB: ' + str(time.process_time() - start))
 
 
+
 """ To run this script from the command line, do:
     $ python  miridb_script_file_location data_origin full_data_path reference_directory connection_string
     where:
@@ -78,8 +77,6 @@ if __name__ == '__main__':
     full_data_path = sys.argv[2]
     reference_directory = sys.argv[3]
     connection_string = sys.argv[4]
-
-    data_directory = os.path.dirname(full_data_path) + '/'
 
     engine = load_engine(connection_string)
     session, base, connection, cursor = init_db(engine)
@@ -105,6 +102,6 @@ if __name__ == '__main__':
     """ Parallelization could happen here, over 'full_data_path' and 'reference_directory' variable - would need to make some modifications to this script"""
     if data_origin == 'jpl8' or data_origin == 'test':
         data_genesis = 'JPL'
-        add_raw_and_corrected_exposure_to_db(data_genesis, data_origin, full_data_path, data_coords, ref_coords_reshape, session, connection, exposures, ramps, groups, correctedexposures, correctedramps, reference_directory, data_directory = data_directory)
+        add_raw_and_corrected_exposure_to_db(data_genesis, data_origin, full_data_path, data_coords, ref_coords_reshape, session, connection, exposures, ramps, groups, correctedexposures, correctedramps, reference_directory)
     else:
         print('Method to add ' + data_origin + ' exposure not yet supported with this script')
