@@ -150,6 +150,8 @@ def create_pipeline_ready_file(full_data_path, data_genesis, output_dir):
     ### generate a pipeline ready file
     try:
         if data_genesis == 'JPL':
+            print('full_data_path = ',full_data_path)
+            print('output_dir = ', output_dir)
             Generate_JPL_Pipeline_Ready_File(full_data_path,output_dir)
         elif data_genesis == 'OTIS':
             Generate_OTIS_Pipeline_Ready_File(full_data_path)
