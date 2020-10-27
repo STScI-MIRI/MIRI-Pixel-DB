@@ -26,7 +26,7 @@ def test_db_unit():
     # script_path = os.path.join(os.path.dirname(os.getcwd()), "miridb_script.py")
     # new_cmd = ['python', script_path, 'test', 'exposures/' + orig_exp, 'None', connection_string]
     # call(new_cmd)
-    # start = time.time()
+    start = time.time()
     os.system(command_string)
     #call(command_string.split())
     print('\nFinished Adding Exp to DB: ' + str(time.time() - start))
