@@ -154,19 +154,29 @@ def grab_subname(first_pix,size):
     subarray_name = list(pixel_info_dict.keys())[list(pixel_info_dict.values()).index(sub_info)]
     return subarray_name
 
+# def create_pipeline_ready_file(full_data_path, data_genesis, output_dir):
+#     ### generate a pipeline ready file
+#     try:
+#         if data_genesis == 'JPL':
+#             print('full_data_path = ',full_data_path)
+#             print('output_dir = ', output_dir)
+#             Generate_JPL_Pipeline_Ready_File(full_data_path,output_dir)
+#         elif data_genesis == 'OTIS':
+#             Generate_OTIS_Pipeline_Ready_File(full_data_path)
+#         else:
+#             print('Unexpected data_genesis for this method - OTIS or JPL LVL1 data expected')
+#     except OSError:
+#         print('Pipeline ready fits file has already been generated for this file')
+
+
 def create_pipeline_ready_file(full_data_path, data_genesis, output_dir):
     ### generate a pipeline ready file
-    try:
-        if data_genesis == 'JPL':
-            print('full_data_path = ',full_data_path)
-            print('output_dir = ', output_dir)
-            Generate_JPL_Pipeline_Ready_File(full_data_path,output_dir)
-        elif data_genesis == 'OTIS':
-            Generate_OTIS_Pipeline_Ready_File(full_data_path)
-        else:
-            print('Unexpected data_genesis for this method - OTIS or JPL LVL1 data expected')
-    except OSError:
-        print('Pipeline ready fits file has already been generated for this file')
+    print('full_data_path = ', full_data_path)
+    print('output_dir = ', output_dir)
+    Generate_JPL_Pipeline_Ready_File(full_data_path, output_dir)
+
+
+
 
 """ This function calls the calwebb_detector1 pipeline step  - currently written with JPL data in mind, hence the various options for reference file overrides and skipping pipeline steps.
 Read more here: https://jwst-pipeline.readthedocs.io/en/latest/jwst/pipeline/calwebb_detector1.html

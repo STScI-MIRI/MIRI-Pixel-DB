@@ -28,7 +28,8 @@ def test_db_unit():
     assert num == 0
 
     script_path = find_script(pyscript,os.path.dirname(os.getcwd()))
-    exposure_path = 'exposures/'+orig_exp
+    #exposure_path = 'exposures/'+orig_exp
+    exposure_path ='/home/travis/build/STScI-MIRI/MIRI-Pixel-DB/miri_pixel_db_code/exposures/'+orig_exp
     run_cmd = ['python',script_path,'test',exposure_path,'None',connection_string]
     print("Script Path:",script_path)
     print("Command Line cmd:",' '.join(run_cmd))
