@@ -6,6 +6,11 @@ import time
 import glob, os
 from subprocess import call
 
+def find_script(name,path):
+    for root, dirs, files in os.walk(path):
+        if name in files:
+            return os.path.join(root, name)
+
 def test_db_unit():
 
     user = 'postgres'
@@ -14,6 +19,7 @@ def test_db_unit():
     engine = load_engine(connection_string)
     session, base, connection, cursor = init_db(engine)
     test_exp = 'MIRI_5582_89_S_20180308-010230_SCE1_pipe.fits'
+    pyscript = 'miridb_script.py'
 
     orig_exp = test_exp.replace('_pipe','')
     table_names = engine.table_names()
@@ -21,14 +27,21 @@ def test_db_unit():
     num = session.query(table_dir['exposures'].c.exp_id).filter(table_dir['exposures'].c.exp == test_exp).count()
     assert num == 0
 
-    command_string = 'python miridb_script.py test exposures/'+orig_exp+' None '+ connection_string
+    script_path = find_script(pyscript,os.getcwd())
+    exposure_path = 'exposures/'+orig_exp
+    run_cmd = ['python',script_path,'test',exposure_path,'None',connection_string]
+    print("Script Path:",script_path)
+    print("Command Line cmd:",' '.join(run_cmd))
+    call(run_cmd)
+    #command_string = 'python miridb_script.py test exposures/'+orig_exp+' None '+ connection_string
     #command_string = 'python  miri_pixel_db_code/miridb_script.py test exposures/' + orig_exp + ' None ' + connection_string
     # script_path = os.path.join(os.path.dirname(os.getcwd()), "miridb_script.py")
     # new_cmd = ['python', script_path, 'test', 'exposures/' + orig_exp, 'None', connection_string]
     # call(new_cmd)
-    start = time.time()
-    os.system(command_string)
-    #call(command_string.split())
+    # start = time.time()
+    # #os.system(command_string)
+    # print(command_string)
+    # call(command_string.split())
     print('\nFinished Adding Exp to DB: ' + str(time.time() - start))
 
     exposuresQ = session.query(table_dir['exposures'].c.exp_id).filter(table_dir['exposures'].c.exp == test_exp)
