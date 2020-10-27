@@ -27,7 +27,7 @@ def test_db_unit():
     num = session.query(table_dir['exposures'].c.exp_id).filter(table_dir['exposures'].c.exp == test_exp).count()
     assert num == 0
 
-    script_path = find_script(pyscript,os.getcwd())
+    script_path = find_script(pyscript,os.path.dirname(os.getcwd()))
     exposure_path = 'exposures/'+orig_exp
     run_cmd = ['python',script_path,'test',exposure_path,'None',connection_string]
     print("Script Path:",script_path)
