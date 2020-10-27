@@ -4,6 +4,7 @@ sys.path.append("..")
 from miridb import init_db, load_engine
 import time
 import glob, os
+from subprocess import call
 
 def test_db_unit():
 
@@ -23,7 +24,8 @@ def test_db_unit():
     command_string = 'python ../miridb_script.py test exposures/'+orig_exp+' None '+ connection_string
     #command_string = 'python  miri_pixel_db_code/miridb_script.py test exposures/' + orig_exp + ' None ' + connection_string
     start = time.time()
-    os.system(command_string)
+    #os.system(command_string)
+    call(command_string.split())
     print('\nFinished Adding Exp to DB: ' + str(time.time() - start))
 
     exposuresQ = session.query(table_dir['exposures'].c.exp_id).filter(table_dir['exposures'].c.exp == test_exp)

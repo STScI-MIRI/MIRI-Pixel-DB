@@ -14,16 +14,9 @@ This is a python script that, when called, will take a LVL1 FITS exposure and ad
 from sqlalchemy import Table
 from exposuresdb import generate_structured_coordinates, insert_pixel_detector_info, add_raw_exposure_to_db, add_corrected_exposure_to_db
 from miridb import init_db, load_miri_tables, load_engine
-from pipefits import create_pipeline_ready_file, generate_corrected_ramp
+from pipefits import create_pipeline_ready_file, generate_corrected_ramp, run_jwst_pipeline_jpl8
 import os
 import time
-
-def run_jwst_pipeline_jpl8(raw_exposure_filepath, reference_directory, pipeline_directory):
-    """ These overrides specific to JPL8 data. """
-    linearity_override_file = reference_directory + 'MIRI_JPL_RUN8_FPM101_JPL_LINEARITY_07.05.00.fits'
-    saturation_override_file = reference_directory + 'MIRI_JPL_RUN8_FPM101_SATURATION_MEDIAN_07.02.00.fits'
-    rscd_override_file = reference_directory + 'MIRI_JPL_RUN8_RSCD_07.04.00.fits'
-    generate_corrected_ramp(raw_exposure_filepath, linearity_override = linearity_override_file, saturation_override = saturation_override_file, rscd_override = rscd_override_file, skip_dark = True, output_path = pipeline_directory)
 
 """ Function to add a exposure to the DB.
     For JPL8 data, we override the reference files used for:

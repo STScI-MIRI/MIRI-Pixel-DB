@@ -101,6 +101,14 @@ def Generate_JPL_Pipeline_Ready_File(file_path, output_dir):
     hdu_object_list.writeto(output_path)
     hdu_object_list.close()
 
+
+def run_jwst_pipeline_jpl8(raw_exposure_filepath, reference_directory, pipeline_directory):
+    """ These overrides specific to JPL8 data. """
+    linearity_override_file = reference_directory + 'MIRI_JPL_RUN8_FPM101_JPL_LINEARITY_07.05.00.fits'
+    saturation_override_file = reference_directory + 'MIRI_JPL_RUN8_FPM101_SATURATION_MEDIAN_07.02.00.fits'
+    rscd_override_file = reference_directory + 'MIRI_JPL_RUN8_RSCD_07.04.00.fits'
+    generate_corrected_ramp(raw_exposure_filepath, linearity_override = linearity_override_file, saturation_override = saturation_override_file, rscd_override = rscd_override_file, skip_dark = True, output_path = pipeline_directory)
+
 def Generate_OTIS_Pipeline_Ready_File(file_path):
     hdu_object_list_pre = fits.open(file_path)
     data_dir = os.path.dirname(file_path) + '/'
