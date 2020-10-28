@@ -22,7 +22,7 @@ def test_db_unit():
     num = session.query(table_dir['exposures'].c.exp_id).filter(table_dir['exposures'].c.exp == test_exp).count()
     assert num == 0
 
-    working_dir = os.path.dirname(os.getcwd()) + '/'
+    working_dir = os.path.dirname(os.getcwd()) + '/MIRI-Pixel-DB/miri_pixel_db_code/'
     script_path = working_dir + pyscript
     exposure_path = working_dir + 'tests/exposures/' + orig_exp
     run_cmd = ['python',script_path,'test',exposure_path,'None',connection_string]
