@@ -3,7 +3,7 @@
 """
 Created on Mon Sep 17 10:28:20 2019
 
-@author: hagan
+@author: @author: J. Brendan Hagan
 
 Script to create the tables in 'miri_pixel_db'
 """

@@ -3,7 +3,7 @@
 """
 Created on Mon Sep 17 10:28:20 2019
 
-@author: hagan
+@author: J. Brendan Hagan
 
 This is a python script that, when called, will take a LVL1 FITS exposure and add it to the DB. This script:
     1) Creates a pipeline ready FITS file (if one does not already exist) for LVL1 exposure if it is 'JPL' or 'OTIS' ground test data

@@ -3,8 +3,7 @@
 """
 Created on Mon Sep 17 10:28:20 2019
 
-@author: hagan
-
+@author: J. Brendan Hagan
 
 This methods found in this package are used to prep JPL and OTIS ground test data to feed to the JWST Detector1Pipeline.
 """

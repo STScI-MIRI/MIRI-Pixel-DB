@@ -3,7 +3,7 @@
 """
 Created on Mon Sep 17 10:28:20 2019
 
-@author: hagan
+@author: J. Brendan Hagan
 
 The methods in this package are used to define/create the tables in the MIRI Pixel DB. Other methods are provided to interact with / perform operations on the DB.
 """
