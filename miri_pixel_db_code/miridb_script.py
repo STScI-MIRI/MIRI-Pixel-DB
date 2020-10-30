@@ -28,9 +28,7 @@ import time
     Look into supplying .pmap file?"""
 def add_raw_and_corrected_exposure_to_db(data_genesis, data_origin, full_data_path, data_coords, ref_coords_reshape, session, connection, exposures, ramps, groups, correctedexposures, correctedramps, reference_directory):
     """ Create pipeline ready file for LVL1 exposure """
-    print('aracetdb full_data_path = ',full_data_path)
     data_directory = os.path.dirname(full_data_path) + '/'
-    print('aracetdb data_directory = ', data_directory)
     create_pipeline_ready_file(full_data_path, data_genesis, data_directory)
     raw_exposure_filepath = full_data_path.replace(".fits","_pipe.fits")
     """ Add raw exposure to DB"""
